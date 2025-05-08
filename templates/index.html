@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to MootCourt AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="page">
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">MootCourt AI</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('signup') }}">Signup</a>
+            </div>
+        </div>
+    </nav>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <main class="container home-center">
+        <h1 class="big-heading">🏛️ Welcome to MootCourt AI!</h1>
+        <p class="sub-text">Practice, Perform, and Perfect your Moot Court Skills with AI.</p>
+
+        <div class="home-buttons">
+            <a href="{{ url_for('login') }}" class="btn">Login</a>
+            <a href="{{ url_for('signup') }}" class="btn">Signup</a>
+        </div>
+    </main>
+
+</body>
+</html>

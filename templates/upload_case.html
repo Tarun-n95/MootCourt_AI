@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Case File - MootCourt AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="page">
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">MootCourt AI</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('challenge') }}">Challenge</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </nav>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <main class="container">
+        <h2>📄 Upload Your Case File (.txt or .pdf)</h2>
+
+        <form method="POST" enctype="multipart/form-data" class="form-box">
+            <label for="file">Choose File:</label>
+            <input type="file" name="file" required>
+
+            <label for="case_type">Select Case Type:</label>
+            <select name="case_type" required>
+                <option value="Civil Law">Civil Law</option>
+                <option value="Criminal Law">Criminal Law</option>
+                <option value="Corporate Law">Corporate Law</option>
+                <option value="Constitutional Law">Constitutional Law</option>
+                <option value="Family Law">Family Law</option>
+                <option value="Intellectual Property Law">Intellectual Property Law</option>
+            </select>
+
+            <label for="difficulty">Select Difficulty Level:</label>
+            <select name="difficulty" required>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+            </select>
+
+            <button type="submit" class="btn">Upload Case</button>
+        </form>
+
+        {% if questions %}
+        <div class="card">
+            <h3 class="card-title">🧠 Questions Generated:</h3>
+            <ul class="question-list">
+                {% for q in questions %}
+                    <li>{{ q }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <a href="{{ url_for('dashboard') }}" class="back-link">← Back to Dashboard</a>
+    </main>
+
+</body>
+</html>

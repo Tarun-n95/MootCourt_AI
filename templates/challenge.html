@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Challenge Mode 🚀</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="page">
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">MootCourt AI</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('challenge') }}">Challenge</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </nav>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <main class="container">
+        <h2>🎤 Challenge Mode: Choose Your Time</h2>
+
+        <div class="challenge-box">
+            <label for="duration" class="form-label">Select Duration:</label>
+            <select id="duration" class="form-select">
+                <option value="60">1 Minute</option>
+                <option value="120" selected>2 Minutes</option>
+                <option value="300">5 Minutes</option>
+            </select>
+
+            <button onclick="startChallenge()" class="btn">Start Challenge</button>
+
+            <p id="timer" class="timer">Timer: 2:00</p>
+
+            <audio id="audioPlayback" controls style="display:none;" class="audio-player"></audio>
+
+            <a href="{{ url_for('dashboard') }}" class="back-link">← Back to Dashboard</a>
+        </div>
+    </main>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let countdown;
+        let totalSeconds = 120; // Default 2 minutes
+
+        async function startChallenge() {
+            const selectedDuration = parseInt(document.getElementById('duration').value);
+            totalSeconds = selectedDuration;
+
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.start();
+            updateTimerDisplay(totalSeconds);
+
+            mediaRecorder.addEventListener("dataavailable", event => {
+                audioChunks.push(event.data);
+            });
+
+            startTimer();
+
+            setTimeout(() => {
+                stopChallenge();
+            }, totalSeconds * 1000);
+
+            alert("Recording started! Speak continuously!");
+        }
+
+        function startTimer() {
+            let seconds = totalSeconds;
+            countdown = setInterval(() => {
+                seconds--;
+                const min = Math.floor(seconds / 60);
+                const sec = seconds % 60;
+                document.getElementById('timer').innerText = `Timer: ${min}:${sec < 10 ? '0' + sec : sec}`;
+                if (seconds <= 0) clearInterval(countdown);
+            }, 1000);
+        }
+
+        function updateTimerDisplay(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = seconds % 60;
+            document.getElementById('timer').innerText = `Timer: ${min}:${sec < 10 ? '0' + sec : sec}`;
+        }
+
+        function stopChallenge() {
+            mediaRecorder.stop();
+            clearInterval(countdown);
+
+            mediaRecorder.addEventListener("stop", () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                document.getElementById('audioPlayback').src = audioUrl;
+                document.getElementById('audioPlayback').style.display = 'block';
+
+                const formData = new FormData();
+                const randomFilename = `challenge_${Date.now()}.webm`;
+                formData.append('audio_data', new File([audioBlob], randomFilename));
+
+                axios.post('/save_audio', formData)
+                    .then(response => {
+                        if (response.data.success) {
+                            alert("Challenge Recorded Successfully! Now analyzing...");
+                            window.location.href = `/transcribe_and_grade/${response.data.filename}/Civil%20Law`;
+                        } else {
+                            alert("Error saving challenge audio.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            });
+
+            alert("Challenge Finished! Uploading for grading...");
+        }
+    </script>
+
+</body>
+</html>

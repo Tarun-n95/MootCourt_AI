@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup - MootCourt AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="page">
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">MootCourt AI</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('login') }}">Login</a>
+            </div>
+        </div>
+    </nav>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <main class="container form-container">
+        <h2>📝 Create a New Account</h2>
+
+        <form method="POST" class="form-box">
+            <label>Username:</label>
+            <input type="text" name="username" required>
+
+            <label>Email:</label>
+            <input type="email" name="email" required>
+
+            <label>Password:</label>
+            <input type="password" name="password" required>
+
+            <button type="submit" class="btn">Signup</button>
+        </form>
+
+        <p class="muted-text">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+    </main>
+
+</body>
+</html>

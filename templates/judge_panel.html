@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Judges</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="page">
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">MootCourt AI</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('challenge') }}">Challenge</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </nav>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <main class="container">
+        <h2>👨‍⚖️ Choose Judges for Your Moot Session</h2>
+
+        <form method="POST" class="form-box">
+            <label for="num_judges">Number of Judges (1–3):</label>
+            <input type="number" name="num_judges" min="1" max="3" required>
+            <button type="submit">Assign Judges</button>
+        </form>
+
+        {% if judges %}
+        <div class="card">
+            <h3 class="card-title">Assigned Judges</h3>
+            <ul class="judge-list">
+                {% for judge in judges %}
+                <li class="judge-card">
+                    <p><strong>{{ judge.name }}</strong> — Age: {{ judge.age }}, Personality: {{ judge.personality }}, Voice Style: {{ judge.voice_style }}</p>
+                    <div class="judge-actions">
+                        <a href="{{ url_for('judge_speak', judge_name=judge.name) }}" class="btn small">Speak</a>
+                        <a href="{{ url_for('ask_questions', judge_name=judge.name) }}" class="btn small">Ask Questions</a>
+                    </div>
+
+                    <h4>🎙️ Record Your Oral Answer:</h4>
+                    <button type="button" onclick="startRecording()" class="btn">Start Recording</button>
+                    <button type="button" onclick="stopRecording()" class="btn red">Stop Recording</button>
+                    <audio id="audioPlayback" controls style="margin-top: 1rem;"></audio>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <a href="{{ url_for('dashboard') }}" class="back-link">← Back to Dashboard</a>
+        {% endif %}
+    </main>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let caseType = "Civil Law";
+
+        async function startRecording() {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.start();
+            mediaRecorder.addEventListener("dataavailable", event => {
+                audioChunks.push(event.data);
+            });
+
+            alert("Recording Started. Speak now!");
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+
+            mediaRecorder.addEventListener("stop", () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                document.getElementById('audioPlayback').src = audioUrl;
+
+                const formData = new FormData();
+                const randomFilename = `answer_${Date.now()}.webm`;
+                formData.append('audio_data', new File([audioBlob], randomFilename));
+
+                fetch('/save_audio', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Audio saved successfully. Now grading...");
+                        window.location.href = `/transcribe_and_grade/${data.filename}/${caseType}`;
+                    } else {
+                        alert("Failed to save audio!");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving audio:', error);
+                });
+            });
+
+            alert("Recording Stopped and Uploading...");
+        }
+    </script>
+
+</body>
+</html>

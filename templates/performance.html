@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Performance Dashboard - MootCourt AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="page">
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">MootCourt AI</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('challenge') }}">Challenge</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </nav>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <main class="container">
+        <h2>📈 Performance Dashboard</h2>
+
+        <div class="stats-box">
+            <p><strong>Total Battles:</strong> {{ total_battles }}</p>
+            <p><strong>Average Score:</strong> {{ average_score | round(2) }}/10</p>
+            <p><strong>Best Score:</strong> {{ best_score }}/10</p>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">Performance Graph:</h3>
+            <canvas id="performanceChart" width="600" height="400"></canvas>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">Performance History:</h3>
+
+            {% if records %}
+                <ul class="performance-list">
+                {% for opponent, score, result, timestamp, transcription, feedback in records %}
+                    <li class="performance-entry">
+                        <p><strong>Against:</strong> {{ opponent }} | <strong>Score:</strong> {{ score }}/10 | <strong>Result:</strong> {{ result }} | <strong>Date:</strong> {{ timestamp }}</p>
+                        <p><strong>Your Answer:</strong> {{ transcription }}</p>
+                        <p><strong>Feedback:</strong> {{ feedback }}</p>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p class="muted-text">No performance records yet.</p>
+            {% endif %}
+        </div>
+
+        <a href="{{ url_for('dashboard') }}" class="back-link">← Back to Dashboard</a>
+    </main>
+
+    <script>
+        const timestamps = {{ timestamps | tojson | safe }};
+        const scores = {{ scores | tojson | safe }};
+
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        const performanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timestamps,
+                datasets: [{
+                    label: 'Your Score Over Time',
+                    data: scores,
+                    borderColor: '#2563eb', // blue-600
+                    backgroundColor: 'transparent',
+                    borderWidth: 3,
+                    tension: 0.3,
+                    pointBackgroundColor: '#2563eb'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

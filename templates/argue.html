@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Argument Battle</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="page">
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">MootCourt AI</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('challenge') }}">Challenge</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </nav>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main class="container">
+        <h2>🧑‍⚖️ Argument Battle</h2>
+
+        <form method="POST" class="form-box">
+            <label for="arg_a">Student A Argument:</label>
+            <textarea name="arg_a" rows="5" required></textarea>
+
+            <label for="arg_b">Student B Argument:</label>
+            <textarea name="arg_b" rows="5" required></textarea>
+
+            <button type="submit">Submit Arguments</button>
+        </form>
+
+        {% if result %}
+            <div class="result-box">
+                <h3>Result:</h3>
+                <p class="highlight">{{ result }}</p>
+
+                <h3>Scores:</h3>
+                <p>Student A: <strong>{{ score_a }}/10</strong> — {{ feedback_a }}</p>
+                <p>Student B: <strong>{{ score_b }}/10</strong> — {{ feedback_b }}</p>
+            </div>
+        {% endif %}
+
+        <a href="{{ url_for('dashboard') }}" class="back-link">← Back to Dashboard</a>
+    </main>
+
+</body>
+</html>

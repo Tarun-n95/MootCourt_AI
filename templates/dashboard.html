@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - MootCourt AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="page">
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">MootCourt AI</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('performance') }}">Performance</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </nav>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <main class="container">
+        <h2>👩‍⚖️ Welcome, {{ username }}!</h2>
+
+        {% if badges %}
+        <div class="card">
+            <h3 class="card-title">🏅 Your Badges</h3>
+            <ul class="badge-list">
+                {% for badge in badges %}
+                    <li>{{ badge }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        <div class="card">
+            <p class="muted-text">No badges yet. Start a Challenge to earn your first badge!</p>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <h3 class="card-title">🚀 Quick Actions</h3>
+            <div class="action-buttons">
+                <a href="{{ url_for('challenge') }}" class="btn">🎯 Challenge Mode</a>
+                <a href="{{ url_for('upload_case') }}" class="btn">📄 Upload Case File</a>
+                <a href="{{ url_for('judge_panel') }}" class="btn">👩‍⚖️ Select Judges</a>
+                <a href="{{ url_for('argue') }}" class="btn">⚖️ Start Argument Battle</a>
+                <a href="{{ url_for('performance') }}" class="btn">📈 View Performance</a>
+            </div>
+        </div>
+
+        {% if uploaded_cases %}
+        <div class="card">
+            <h3 class="card-title">📚 Your Uploaded Cases</h3>
+            <ul class="case-list">
+                {% for case in uploaded_cases %}
+                    <li>{{ case[0] }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </main>
+
+</body>
+</html>
