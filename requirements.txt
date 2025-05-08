@@ -2,3 +2,4 @@ Flask
 Werkzeug
 PyPDF2
 pyttsx3
+SpeechRecognition
